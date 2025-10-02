@@ -1,4 +1,4 @@
-#include "PipeLine.h"
+#include "ObjectTemplate.h"
 
 
 
@@ -23,11 +23,29 @@ using namespace std;
 
 
 
+
+
+ObjectTemplate::ObjectTemplate() {}
+ObjectTemplate::ObjectTemplate(string parametr_[5], string metadata_[5], int DesiredType_[5]) {
+    for (int i = 0; i < 5; ++i) {
+        parametr[i] = parametr_[i];
+        metadata[i] = metadata_[i];
+        DesiredType[i] = DesiredType_[i];
+    }
+
+}
+ObjectTemplate::~ObjectTemplate() {}
+
+
+
+
+
+
 // Реализация TechFunc1
-void PipeLine::TechFunc1(int i) {
-    int DesiredType[5] = {0, 1, 1, 1, 2};
+void ObjectTemplate::TechFunc1(int i) {
+    //int DesiredType[5] = {0, 1, 1, 1, 2};
     auto TypeDesireedTypeOut = MainData[i];
-    
+    cout << DesiredType[i] << endl;
     if (DesiredType[i] == 1) {
         TypeDesireedTypeOut = 0;
         InputPos<int>(parametr[i], get<int>(TypeDesireedTypeOut), i);
@@ -43,7 +61,7 @@ void PipeLine::TechFunc1(int i) {
 
 // Реализация шаблонной функции (должна остаться в заголовке или здесь с explicit instantiation)
 template <typename T> 
-T PipeLine::InputPos(string NameOfInput, T DesireedTypeIn, int id) {
+T ObjectTemplate::InputPos(string NameOfInput, T DesireedTypeIn, int id) {
     cout << NameOfInput << metadata[id];
     cin >> DesireedTypeIn;
     if (cin.fail()) {
@@ -56,7 +74,7 @@ T PipeLine::InputPos(string NameOfInput, T DesireedTypeIn, int id) {
     return DesireedTypeIn;
 }
 /**template <typename T> 
-T PipeLine::InputPos(string NameOfInput, T DesireedTypeIn, int id) 
+T ObjectTemplate::InputPos(string NameOfInput, T DesireedTypeIn, int id) 
     cout << NameOfInput << metadata[id];
     cin >> DesireedTypeIn;
     if (cin.fail()) {
@@ -71,7 +89,7 @@ T PipeLine::InputPos(string NameOfInput, T DesireedTypeIn, int id)
     return DesireedTypeIn;
 }
 template <typename T>
-T PipeLine::DetectedInput(T& value, int up, int down) {
+T ObjectTemplate::DetectedInput(T& value, int up, int down) {
     cin >> value;
     if (cin.fail()) {
         cin.clear();
@@ -85,12 +103,12 @@ T PipeLine::DetectedInput(T& value, int up, int down) {
 }**/
 
 // Явное инстанцирование шаблона для нужных типов
-template int PipeLine::InputPos<int>(string, int, int);
-template unsigned PipeLine::InputPos<unsigned>(string, unsigned, int);
-template string PipeLine::InputPos<string>(string, string, int);
+template int ObjectTemplate::InputPos<int>(string, int, int);
+template unsigned ObjectTemplate::InputPos<unsigned>(string, unsigned, int);
+template string ObjectTemplate::InputPos<string>(string, string, int);
 
 // Реализация публичных методов
-void PipeLine::update() {
+void ObjectTemplate::update() {
     cout << "-----------------" << endl;
     cout << "Enetr this number for change parametr." << endl;
     for (int i = 0; i < size(parametr); i++) {
@@ -105,7 +123,7 @@ void PipeLine::update() {
     cout << "-----------------" << endl;
 }
 
-void PipeLine::create() {
+void ObjectTemplate::create() {
     cout << "-----------------" << endl;
     cout << "Create a new pipeline." << endl;
     for(size_t i = 0; i < 5; i++) {
@@ -114,7 +132,7 @@ void PipeLine::create() {
     cout << "-----------------" << endl;
 }
 
-void PipeLine::PrintData() {
+void ObjectTemplate::PrintData() {
     cout << "-----------------" << endl;
     for (int i = 0; i < size(MainData); i++) {
         cout << parametr[i] << metadata[i];
@@ -130,7 +148,7 @@ void PipeLine::PrintData() {
 
 
 template<class Archive>
-void PipeLine::serialize(Archive& archive) {
+void ObjectTemplate::serialize(Archive& archive) {
     archive(
         MainData,    // сериализуем основные данные
         parametr,    // сериализуем параметры
@@ -139,5 +157,5 @@ void PipeLine::serialize(Archive& archive) {
     // Примечание: временные массивы вроде DesiredType не сериализуем
 }
 
-template void PipeLine::serialize<cereal::BinaryOutputArchive>(cereal::BinaryOutputArchive&);
-template void PipeLine::serialize<cereal::BinaryInputArchive>(cereal::BinaryInputArchive&);
+template void ObjectTemplate::serialize<cereal::BinaryOutputArchive>(cereal::BinaryOutputArchive&);
+template void ObjectTemplate::serialize<cereal::BinaryInputArchive>(cereal::BinaryInputArchive&);
