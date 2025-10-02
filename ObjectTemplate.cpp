@@ -73,34 +73,6 @@ T ObjectTemplate::InputPos(string NameOfInput, T DesireedTypeIn, int id) {
     MainData[id] = DesireedTypeInVariant;
     return DesireedTypeIn;
 }
-/**template <typename T> 
-T ObjectTemplate::InputPos(string NameOfInput, T DesireedTypeIn, int id) 
-    cout << NameOfInput << metadata[id];
-    cin >> DesireedTypeIn;
-    if (cin.fail()) {
-    	cin.clear();
-        cin.ignore(numeric_limits<streamsize>::max(), '\n');
-        cout << "Input error. Please try again." << endl;
-        throw invalid_argument("Invalid argument. Try again.");
-    } else {
-    	variant<int, unsigned, string> DesireedTypeInVariant = DesireedTypeIn;
-    	MainData[id] = DesireedTypeInVariant;
-    }
-    return DesireedTypeIn;
-}
-template <typename T>
-T ObjectTemplate::DetectedInput(T& value, int up, int down) {
-    cin >> value;
-    if (cin.fail()) {
-        cin.clear();
-        cout << "input error. Try again." << endl;
-        throw invalid_argument("Invalid argument. Try again.");
-    } else if (up < value || down > value) {
-	cout << "input error. Try again." << endl;
-	throw invalid_argument("Invalid argument. Try again.");
-    }
-    return value;
-}**/
 
 // Явное инстанцирование шаблона для нужных типов
 template int ObjectTemplate::InputPos<int>(string, int, int);
