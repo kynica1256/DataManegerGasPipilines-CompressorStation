@@ -18,9 +18,7 @@ using namespace std;
 #include <type_traits>
 #include <variant>
 #include <vector>
-
-
-
+#include <stdexcept>
 
 
 
@@ -48,10 +46,43 @@ template <typename T>
 T PipeLine::InputPos(string NameOfInput, T DesireedTypeIn, int id) {
     cout << NameOfInput << metadata[id];
     cin >> DesireedTypeIn;
+    if (cin.fail()) {
+        cin.clear();
+        cout << "input error. Try again." << endl;
+        throw invalid_argument("Invalid argument. Try again.");
+    }
     variant<int, unsigned, string> DesireedTypeInVariant = DesireedTypeIn;
     MainData[id] = DesireedTypeInVariant;
     return DesireedTypeIn;
 }
+/**template <typename T> 
+T PipeLine::InputPos(string NameOfInput, T DesireedTypeIn, int id) 
+    cout << NameOfInput << metadata[id];
+    cin >> DesireedTypeIn;
+    if (cin.fail()) {
+    	cin.clear();
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        cout << "Input error. Please try again." << endl;
+        throw invalid_argument("Invalid argument. Try again.");
+    } else {
+    	variant<int, unsigned, string> DesireedTypeInVariant = DesireedTypeIn;
+    	MainData[id] = DesireedTypeInVariant;
+    }
+    return DesireedTypeIn;
+}
+template <typename T>
+T PipeLine::DetectedInput(T& value, int up, int down) {
+    cin >> value;
+    if (cin.fail()) {
+        cin.clear();
+        cout << "input error. Try again." << endl;
+        throw invalid_argument("Invalid argument. Try again.");
+    } else if (up < value || down > value) {
+	cout << "input error. Try again." << endl;
+	throw invalid_argument("Invalid argument. Try again.");
+    }
+    return value;
+}**/
 
 // Явное инстанцирование шаблона для нужных типов
 template int PipeLine::InputPos<int>(string, int, int);
@@ -110,186 +141,3 @@ void PipeLine::serialize(Archive& archive) {
 
 template void PipeLine::serialize<cereal::BinaryOutputArchive>(cereal::BinaryOutputArchive&);
 template void PipeLine::serialize<cereal::BinaryInputArchive>(cereal::BinaryInputArchive&);
-
-
-
-
-
-/** 
-class PipeLine
-{
-private:
-
-variant<int, unsigned, string> MainData[5];
-
-string parametr[5] = {"Name: ", "Length: ", "Diameter: ", "Works normally: ", "Age: "};
-string metadata[5] = {"", "", "", "(0 - false, 1 - true) ", ""};
-
-void TechFunc1(int i) {
-    int DesiredType[5] = {0, 1, 1, 1, 2};
-    auto TypeDesireedTypeOut = MainData[i];
-    //cout << parametr[i] << endl;
-    //visit([](const auto& value) {
-    //    cout << value << endl;
-    //}, TypeDesireedTypeOut);
-    //cout << DesiredType[i] << endl;
-    //string TypeDesireedTypeOutString = typeid(TypeDesireedTypeOut).name();
-    //cout << TypeDesireedTypeOutString << endl;
-    //cout  << TypeDesireedTypeOutString << endl; holds_alternative<int>(TypeDesireedTypeOut)
-    if (DesiredType[i] == 1) {
-        TypeDesireedTypeOut = 0;
-        InputPos<int>(parametr[i], get<int>(TypeDesireedTypeOut), i);
-    } else if(DesiredType[i] == 0) {
-        TypeDesireedTypeOut = "";
-        InputPos<string>(parametr[i], get<string>(TypeDesireedTypeOut), i);
-    } else if(DesiredType[i] == 2) {
-        unsigned par = 0;
-        TypeDesireedTypeOut = par;
-        InputPos<unsigned>(parametr[i], get<unsigned>(TypeDesireedTypeOut), i);
-    }
-}
-
-template <typename T> T InputPos(string NameOfInput, T DesireedTypeIn, int id)
-{
-    //cout << typeid(DesireedTypeIn).name() << endl;
-    cout << NameOfInput << metadata[id];
-    cin >> DesireedTypeIn;
-    //cout << endl;
-    //cout << DesireedTypeIn << endl;
-    variant<int, unsigned, string> DesireedTypeInVariant = DesireedTypeIn;
-    MainData[id] = DesireedTypeInVariant;
-    return DesireedTypeIn;
-}
-
-public:
-    string name;
-    int length;
-    int diameter;
-    int status;
-    unsigned age;
-    void update()
-    {
-        cout << "-----------------" << endl;
-        cout << "Enetr this number for change parametr." << endl;
-        for (int i = 0; i < size(parametr); i++) {
-            cout << parametr[i] << i << endl;
-        }
-
-        int NumOfPar;
-        cout << "Input number of parametr: ";
-        cin >> NumOfPar;
-
-        TechFunc1(NumOfPar);
-        cout << "-----------------" << endl;
-    }
-    void create()
-    {
-        cout << "-----------------" << endl;
-        cout << "Create a new pipeline." << endl;
-        for(size_t i=0; i<5; i++) {
-            TechFunc1(i);
-        }
-        cout << "-----------------" << endl;
-    }
-    void PrintData() {
-        cout << "-----------------" << endl;
-        for (int i = 0; i < size(MainData); i++) {
-            cout << parametr[i] << metadata[i];
-            visit([](const auto& value) {
-                cout << value;
-            }, MainData[i]);
-            cout << endl;
-        }
-        cout << "-----------------" << endl;
-    }
-};
-**/
-
-
-class PipeLine
-{
-private:
-
-variant<int, unsigned, string> MainData[5];
-
-string parametr[5] = {"Name: ", "Length: ", "Diameter: ", "Works normally: ", "Age: "};
-string metadata[5] = {"", "", "", "(0 - false, 1 - true) ", ""};
-
-void TechFunc1(int i) {
-    int DesiredType[5] = {0, 1, 1, 1, 2};
-    auto TypeDesireedTypeOut = MainData[i];
-    //cout << parametr[i] << endl;
-    //visit([](const auto& value) {
-    //    cout << value << endl;
-    //}, TypeDesireedTypeOut);
-    //cout << DesiredType[i] << endl;
-    //string TypeDesireedTypeOutString = typeid(TypeDesireedTypeOut).name();
-    //cout << TypeDesireedTypeOutString << endl;
-    //cout  << TypeDesireedTypeOutString << endl; holds_alternative<int>(TypeDesireedTypeOut)
-    if (DesiredType[i] == 1) {
-        TypeDesireedTypeOut = 0;
-        InputPos<int>(parametr[i], get<int>(TypeDesireedTypeOut), i);
-    } else if(DesiredType[i] == 0) {
-        TypeDesireedTypeOut = "";
-        InputPos<string>(parametr[i], get<string>(TypeDesireedTypeOut), i);
-    } else if(DesiredType[i] == 2) {
-        unsigned par = 0;
-        TypeDesireedTypeOut = par;
-        InputPos<unsigned>(parametr[i], get<unsigned>(TypeDesireedTypeOut), i);
-    }
-}
-
-template <typename T> T InputPos(string NameOfInput, T DesireedTypeIn, int id)
-{
-    //cout << typeid(DesireedTypeIn).name() << endl;
-    cout << NameOfInput << metadata[id];
-    cin >> DesireedTypeIn;
-    //cout << endl;
-    //cout << DesireedTypeIn << endl;
-    variant<int, unsigned, string> DesireedTypeInVariant = DesireedTypeIn;
-    MainData[id] = DesireedTypeInVariant;
-    return DesireedTypeIn;
-}
-
-public:
-    string name;
-    int length;
-    int diameter;
-    int status;
-    unsigned age;
-    void update()
-    {
-        cout << "-----------------" << endl;
-        cout << "Enetr this number for change parametr." << endl;
-        for (int i = 0; i < size(parametr); i++) {
-            cout << parametr[i] << i << endl;
-        }
-
-        int NumOfPar;
-        cout << "Input number of parametr: ";
-        cin >> NumOfPar;
-
-        TechFunc1(NumOfPar);
-        cout << "-----------------" << endl;
-    }
-    void create()
-    {
-        cout << "-----------------" << endl;
-        cout << "Create a new pipeline." << endl;
-        for(size_t i=0; i<5; i++) {
-            TechFunc1(i);
-        }
-        cout << "-----------------" << endl;
-    }
-    void PrintData() {
-        cout << "-----------------" << endl;
-        for (int i = 0; i < size(MainData); i++) {
-            cout << parametr[i] << metadata[i];
-            visit([](const auto& value) {
-                cout << value;
-            }, MainData[i]);
-            cout << endl;
-        }
-        cout << "-----------------" << endl;
-    }
-};

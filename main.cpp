@@ -25,15 +25,47 @@ using namespace std;
 
 #include <string> 
 
+#include <stdexcept>
 
 
 
 
 
+/**
+template <typename T> 
+bool DetectedInput(T value, string type) {
+	switch (cmnd) {
+		case 1:
+			
+		default:
+			
+	}
+}
 
-
-
-
+template <typename T> 
+T DetectedInput(const T& value) {
+    cin << value;
+    if (value.fail()) {
+    	cin.clear();
+    	cout << "input error. Try again.";
+	throw invalid_argument("Invalid argument. Try again.");
+    } else {
+	return value;
+    }
+}**/
+template <typename T>
+T DetectedInput(T& value, int up, int down) {
+    cin >> value;
+    if (cin.fail()) {
+        cin.clear();
+        cout << "input error. Try again." << endl;
+        throw invalid_argument("Invalid argument. Try again.");
+    } else if (up < value || down > value) {
+	cout << "input error. Try again." << endl;
+	throw invalid_argument("Invalid argument. Try again.");
+    }
+    return value;
+}
 
 
 struct FilesData {
@@ -60,27 +92,36 @@ FilesData MainMenu(FilesData NamesOfFilesStructure) {
     if (NamesOfFiles.size() == 0) {
         int DesiredNum;
         cout << "[Exit - Ctrl+C, Create a new - 0]: " << endl;
-        cin >> DesiredNum;
+        //cin >> DesiredNum;
+    	try {
+    		int DesiredNum = DetectedInput<int>(DesiredNum, 0, 0);
+    	} catch (const exception& e) {
+		return NamesOfFilesStructure;
+    	}
         if (DesiredNum == 0) {
-            PipeLine NewPipeLine;
-            NewPipeLine.create();
-            string FileName = "Data"+to_string(NamesOfFiles.size())+".bin";
-            SavePipeLine(NewPipeLine, FileName);
-            NamesOfFilesStructure.NamesOfFiles.push_back(FileName);
-            return NamesOfFilesStructure;
+	    try {
+            	PipeLine NewPipeLine;
+            	NewPipeLine.create();
+	    	NewPipeLine.PrintData();
+            	string FileName = "Data"+to_string(NamesOfFiles.size())+".bin";
+            	SavePipeLine(NewPipeLine, FileName);
+            	NamesOfFilesStructure.NamesOfFiles.push_back(FileName);
+            	return NamesOfFilesStructure;
+            } catch (const exception& e) {
+		return NamesOfFilesStructure;
+	    }
         } else {}
     }
-    for (int i = 1; i < NamesOfFiles.size(); i++) {
+    for (int i = 1; i < NamesOfFiles.size()+1; i++) {
         PipeLine pipeline;
         try {
-            ifstream is(NamesOfFiles[i], ios::binary);
+            ifstream is(NamesOfFiles[i-1], ios::binary);
             cereal::BinaryInputArchive archive(is);
             archive(pipeline);
         } catch (const exception& e) {
             cerr << "Error -- " << endl;
-            //pipeline = FilesData();
         }
-        CopiesOfClass[i] = pipeline;
+        CopiesOfClass[i-1] = pipeline;
         visit([](const auto& value) {
             cout << value;
         }, pipeline.MainData[0]);
@@ -88,24 +129,45 @@ FilesData MainMenu(FilesData NamesOfFilesStructure) {
     }
     int DesiredNum;
     cout << "[Desired number, Exit - Ctrl+C, Create a new - 0]: " << endl;
-    cin >> DesiredNum;
+    //cin >> DesiredNum;
+    try {
+    	int DesiredNum = DetectedInput<int>(DesiredNum, 0, 0);
+    } catch (const exception& e) {
+	return NamesOfFilesStructure;
+    }
     if (DesiredNum == 0) {
-        PipeLine NewPipeLine;
-        NewPipeLine.create();
-        string FileName = "Data"+to_string(NamesOfFiles.size())+".bin";
-        SavePipeLine(NewPipeLine, FileName);
-        NamesOfFilesStructure.NamesOfFiles.push_back(FileName);
-        return NamesOfFilesStructure;
+	try {
+        	PipeLine NewPipeLine;
+        	NewPipeLine.create();
+		NewPipeLine.PrintData();
+        	string FileName = "Data"+to_string(NamesOfFiles.size())+".bin";
+        	SavePipeLine(NewPipeLine, FileName);
+        	NamesOfFilesStructure.NamesOfFiles.push_back(FileName);
+        	return NamesOfFilesStructure;
+        } catch (const exception& e) {
+		return NamesOfFilesStructure;
+	}
     } else {
        DesiredNum--;
     }
     CopiesOfClass[DesiredNum].PrintData();
     cout << "[Update - 0, Delete - 1, Pass - 2, Exit - Ctrl+C]: ";
     int cmnd;
-    cin >> cmnd;
+    //cin >> cmnd;
+    try {
+    	int cmnd = DetectedInput<int>(cmnd, 2, 0);
+    } catch (const exception& e) {
+	return NamesOfFilesStructure;
+    }
+    PipeLine pipeline;
+    string FileName = "Data"+to_string(DesiredNum)+".bin";
     switch (cmnd) {
         case 0:
-            CopiesOfClass[DesiredNum].update();
+            pipeline = CopiesOfClass[DesiredNum];
+            pipeline.update();
+            CopiesOfClass[DesiredNum] = pipeline;
+	    SavePipeLine(pipeline, FileName);
+	    pipeline.PrintData();
             break;
         case 1:
             if( remove( NamesOfFiles[DesiredNum].c_str() ) != 0 ) {
@@ -124,5 +186,15 @@ FilesData MainMenu(FilesData NamesOfFilesStructure) {
 
 
 int main() {
-
+	FilesData Data;
+	{
+        std::ifstream is("PipesData.bin", std::ios::binary);
+        cereal::BinaryInputArchive input_archive(is);
+        input_archive(Data);
+	}
+	//for (string i: Data.NamesOfFiles) {
+    	//	std::cout << i << ' ';
+	//}
+	Data = MainMenu(Data);
+	SavePipeLine(Data, "PipesData.bin");
 }

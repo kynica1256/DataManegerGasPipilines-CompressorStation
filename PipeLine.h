@@ -16,6 +16,9 @@ private:
     template <typename T> 
     T InputPos(string NameOfInput, T DesireedTypeIn, int id);
 
+    template <typename T> 
+    T DetectedInput(T& value, int up, int down);
+
 public:
     variant<int, unsigned, string> MainData[5];
     string name;
